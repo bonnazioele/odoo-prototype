@@ -5,10 +5,10 @@ from functools import wraps
 app = Flask(__name__)
 
 # Odoo connection settings
-ODOO_URL = "https://usjr10.odoo.com"
-ODOO_DB = "usjr10"
-ODOO_USERNAME = "azioele123@gmail.com"
-ODOO_PASSWORD = "Azioele123##"
+ODOO_URL = "" #change to your Odoo URL
+ODOO_DB = "" #change to your Odoo DB
+ODOO_USERNAME = "" #change to your Odoo email address
+ODOO_PASSWORD = "" #change to your Odoo password
 
 def handle_odoo_errors(f):
     @wraps(f)
