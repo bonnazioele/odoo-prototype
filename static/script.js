@@ -1,30 +1,44 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // DOM Elements
-    const inventoryTable = document.getElementById('inventoryTable').querySelector('tbody');
-    const productSelect = document.getElementById('productSelect');
-    const transferForm = document.getElementById('transferForm');
-    const refreshBtn = document.getElementById('refreshBtn');
+    const productTable = document.querySelector('#productTable tbody');
+    const addProductForm = document.getElementById('addProductForm');
 
-    // Load initial data
+    // Load products on page load
     loadProducts();
-    loadInventory();
 
-    // Event Listeners
-    refreshBtn.addEventListener('click', loadInventory);
-    transferForm.addEventListener('submit', handleTransferSubmit);
+    // Handle form submission
+    addProductForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        addProduct();
+    });
 
-    // Load product dropdown
+    // Load all products
     async function loadProducts() {
         try {
             const response = await fetch('/api/products');
             const products = await response.json();
             
-            productSelect.innerHTML = '';
+            productTable.innerHTML = '';
             products.forEach(product => {
-                const option = document.createElement('option');
-                option.value = product.id;
-                option.textContent = product.name;
-                productSelect.appendChild(option);
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${product.id}</td>
+                    <td>${product.name}</td>
+                    <td>${product.default_code || ''}</td>
+                    <td>${product.type}</td>
+                    <td>
+                        <button class="delete-btn" data-id="${product.id}">Delete</button>
+                    </td>
+                `;
+                productTable.appendChild(row);
+            });
+
+            // Add event listeners to delete buttons
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    if (confirm('Are you sure you want to delete this product?')) {
+                        deleteProduct(this.dataset.id);
+                    }
+                });
             });
         } catch (error) {
             console.error('Error loading products:', error);
@@ -32,71 +46,68 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Load inventory data
-    async function loadInventory() {
-        try {
-            const response = await fetch('/api/inventory');
-            const inventory = await response.json();
-            
-            inventoryTable.innerHTML = '';
-            inventory.forEach(item => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${item.product_id[1]}</td>
-                    <td>${item.quantity}</td>
-                    <td>${item.location_id[1]}</td>
-                    <td>
-                        <button class="update-btn" data-id="${item.id}">Update</button>
-                    </td>
-                `;
-                inventoryTable.appendChild(row);
-            });
-
-            // Add event listeners to update buttons
-            document.querySelectorAll('.update-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const itemId = this.getAttribute('data-id');
-                    // Implement update functionality
-                    alert(`Update item ${itemId} - functionality to be implemented`);
-                });
-            });
-        } catch (error) {
-            console.error('Error loading inventory:', error);
-            alert('Failed to load inventory');
-        }
+    // Add new product
+   async function addProduct() {
+    const productName = document.getElementById('productName').value;
+    const productCode = document.getElementById('productCode').value;
+    const productPrice = document.getElementById('productPrice').value || 0;
+    const productCost = document.getElementById('productCost').value || 0;
+    
+    if (!productName) {
+        alert('Product name is required');
+        return;
     }
 
-    // Handle transfer form submission
-    async function handleTransferSubmit(e) {
-        e.preventDefault();
-        
-        const transferData = {
-            product_id: parseInt(productSelect.value),
-            quantity: parseInt(document.getElementById('quantityInput').value),
-            source_location_id: parseInt(document.getElementById('sourceLocation').value),
-            dest_location_id: parseInt(document.getElementById('destLocation').value)
-        };
+    try {
+        const response = await fetch('/api/products', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                name: productName,
+                code: productCode,
+                price: parseFloat(productPrice),
+                cost: parseFloat(productCost)
+            })
+        });
 
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to add product');
+        }
+
+        const result = await response.json();
+        alert(`Product added successfully! ID: ${result.product_id}`);
+        document.getElementById('productName').value = '';
+        document.getElementById('productCode').value = '';
+        document.getElementById('productPrice').value = '';
+        document.getElementById('productCost').value = '';
+        loadProducts();
+        
+    } catch (error) {
+        console.error('Error adding product:', error);
+        alert(`Error: ${error.message}`);
+    }
+}
+
+    // Delete product
+    async function deleteProduct(id) {
         try {
-            const response = await fetch('/api/transfers', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(transferData)
+            const response = await fetch(`/api/products?id=${id}`, {
+                method: 'DELETE'
             });
 
             const result = await response.json();
             if (result.status === 'success') {
-                alert('Transfer created successfully!');
-                loadInventory(); // Refresh inventory
-                transferForm.reset(); // Clear form
+                alert('Product deleted successfully!');
+                loadProducts();
             } else {
-                throw new Error('Transfer failed');
+                throw new Error('Failed to delete product');
             }
         } catch (error) {
-            console.error('Error creating transfer:', error);
-            alert('Failed to create transfer');
+            console.error('Error deleting product:', error);
+            alert('Failed to delete product');
         }
     }
 });
