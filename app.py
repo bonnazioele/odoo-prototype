@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify, request,make_response
+from flask import Flask, render_template, jsonify, request, make_response
 import xmlrpc.client
 from functools import wraps
 from flask_cors import CORS
@@ -39,7 +39,7 @@ def get_odoo_connection():
 def index():
     return render_template('index.html')
 
-@app.route('/api/products', methods=['GET', 'POST', 'DELETE'])
+@app.route('/api/products', methods=['GET', 'POST', 'PUT', 'DELETE'])
 @handle_odoo_errors
 def products():
     models, uid = get_odoo_connection()
@@ -56,7 +56,7 @@ def products():
     
     elif request.method == 'POST':
         # Add new product
-        data = request.get_json()  # Changed from request.json for better compatibility
+        data = request.get_json()
         if not data or 'name' not in data:
             return jsonify({"error": "Product name is required"}), 400
             
@@ -70,6 +70,28 @@ def products():
             }]
         )
         return jsonify({"status": "success", "product_id": product_id})
+    
+    elif request.method == 'PUT':
+        # Update product
+        data = request.get_json()
+        if not data or 'id' not in data:
+            return jsonify({"error": "Product ID is required"}), 400
+            
+        # Prepare update data
+        update_values = {}
+        if 'name' in data:
+            update_values['name'] = data['name']
+        if 'default_code' in data:
+            update_values['default_code'] = data['default_code']
+        if 'type' in data:
+            update_values['type'] = data['type']
+            
+        models.execute_kw(
+            ODOO_DB, uid, ODOO_PASSWORD,
+            'product.product', 'write',
+            [[int(data['id'])], update_values]
+        )
+        return jsonify({"status": "success"})
     
     elif request.method == 'DELETE':
         # Delete product

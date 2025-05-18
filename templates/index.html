@@ -11,28 +11,28 @@
         <h1>Product Management</h1>
         
         <!-- Add Product Form -->
-       <div class="section">
-    <h2>Add New Product</h2>
-    <form id="addProductForm">
-        <div class="form-group">
-            <label for="productName">Product Name:*</label>
-            <input type="text" id="productName" required>
+        <div class="section">
+            <h2>Add New Product</h2>
+            <form id="addProductForm">
+                <div class="form-group">
+                    <label for="productName">Product Name:*</label>
+                    <input type="text" id="productName" required>
+                </div>
+                <div class="form-group">
+                    <label for="productCode">Product Code:</label>
+                    <input type="text" id="productCode">
+                </div>
+                <div class="form-group">
+                    <label for="productPrice">Sale Price:</label>
+                    <input type="number" id="productPrice" min="0" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label for="productCost">Cost:</label>
+                    <input type="number" id="productCost" min="0" step="0.01">
+                </div>
+                <button type="submit">Add Product</button>
+            </form>
         </div>
-        <div class="form-group">
-            <label for="productCode">Product Code:</label>
-            <input type="text" id="productCode">
-        </div>
-        <div class="form-group">
-            <label for="productPrice">Sale Price:</label>
-            <input type="number" id="productPrice" min="0" step="0.01">
-        </div>
-        <div class="form-group">
-            <label for="productCost">Cost:</label>
-            <input type="number" id="productCost" min="0" step="0.01">
-        </div>
-        <button type="submit">Add Product</button>
-    </form>
-</div>
         
         <!-- Product List -->
         <div class="section">
@@ -49,6 +49,34 @@
                 </thead>
                 <tbody></tbody>
             </table>
+        </div>
+    </div>
+
+    <!-- Edit Product Modal -->
+    <div id="editProductModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Edit Product</h2>
+            <form id="editProductForm">
+                <input type="hidden" id="editProductId">
+                <div class="form-group">
+                    <label for="editProductName">Product Name:*</label>
+                    <input type="text" id="editProductName" required>
+                </div>
+                <div class="form-group">
+                    <label for="editProductCode">Product Code:</label>
+                    <input type="text" id="editProductCode">
+                </div>
+                <div class="form-group">
+                    <label for="editProductType">Product Type:</label>
+                    <select id="editProductType">
+                        <option value="product">Storable Product</option>
+                        <option value="consu">Consumable</option>
+                        <option value="service">Service</option>
+                    </select>
+                </div>
+                <button type="submit">Update Product</button>
+            </form>
         </div>
     </div>
 
