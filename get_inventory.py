@@ -2,9 +2,9 @@ import xmlrpc.client
 
 # Odoo server info
 url = 'https://usjr3.odoo.com'
-db = 'your_database_name'          # Replace with your actual DB name
-username = 'your_email_here'       # Your Odoo login email
-password = 'your_password_here'
+db = 'usjr3'          # Replace with your actual DB name
+username = 'azioele123@gmail.com'       # Your Odoo login email
+password = 'Azioele123##'  # Your Odoo login password
 
 # XML-RPC endpoints
 common = xmlrpc.client.ServerProxy(f'{url}/xmlrpc/2/common')
